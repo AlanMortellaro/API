@@ -2,14 +2,26 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+session_start();
+
+require_once('inc/connexion.inc.php');
+
+
 require '../vendor/autoload.php';
 
 $app = new \Slim\App();
 
 $app->get('/{name}', function (Request $request, Response $response) {
-    $name = $request->getAttribute('name');
-    $response->getBody()->write("{name: '$name'}");
 
+    $name = $request->getAttribute('name');
+
+    $cnn = getConnexion('apidallas');
+    $res = $cnn->prepare('SELECT * FROM personne WHERE nom LIKE :name;');
+    $res->bindValue(':name', $name);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $response->getBody()->write("{name: '$name'}");
     return $response;
 });
 
@@ -22,6 +34,22 @@ $app->post("/user/create", function ($request, $response) {
 
     return $this->response->withJson($data);
 });
+
+$app->put('/user/[{id}]', function ($request, $response, $args) {
+
+      $id = $request->getAttribute('id');
+
+      $cnn = getConnexion('apidallas');
+      $res = $cnn->prepare('UPDATE personne SET nom=\'teeeeeeest\' WHERE id LIKE :id');
+      $res->bindValue(':id', $id);
+      $res->execute();
+      $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+      $response->getBody()->write("{name: 'teeeeeeest' WHERE id LIKE '$id'}");
+      return $response;
+    });
+
+
 $app->run();
 
 

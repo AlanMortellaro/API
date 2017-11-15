@@ -18,7 +18,7 @@ $app->get('/name/{name}', function (Request $request, Response $response) {
     $name = $request->getAttribute('name');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.name = :name');
+    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.name = :name;');
     $res->bindValue(':name', $name);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -36,7 +36,7 @@ $app->get('/firstname/{firstname}', function (Request $request, Response $respon
     $FirstName = $request->getAttribute('firstname');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.firstname = :firstname');
+    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.firstname = :firstname;');
     $res->bindValue(':firstname', $FirstName);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -69,7 +69,7 @@ $app->get('/user/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id');
+    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -82,10 +82,13 @@ $app->get('/user/{id}', function (Request $request, Response $response) {
 });
 
 //retourne toutes les clefs
-$app->get('/keys', function (Request $request, Response $response) {
+$app->get('/key/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_keys LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id LEFT JOIN user_key on user_key.id_user = tbl_users.id;');
+    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_keys.id = :id;');
+    $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 

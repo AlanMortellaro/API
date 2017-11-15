@@ -49,7 +49,7 @@ $app->get('/firstname/{firstname}', function (Request $request, Response $respon
 });
 
 //retourne tous users
-$app->get('/users', function (Request $request, Response $response) {
+$app->get('/all', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id;');
@@ -71,6 +71,21 @@ $app->get('/user/{id}', function (Request $request, Response $response) {
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id');
     $res->bindValue(':id', $id);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+    return $response;
+});
+
+//retourne toutes les clefs
+$app->get('/keys', function (Request $request, Response $response) {
+
+    $cnn = getConnexion('apidallas');
+    $res = $cnn->prepare('SELECT * FROM tbl_keys LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id LEFT JOIN user_key on user_key.id_user = tbl_users.id;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 

@@ -13,12 +13,12 @@ $app = new \Slim\App();
 
 
 // Recherche personne de la base de donnée via le nom
-$app->get('/nom/{name}', function (Request $request, Response $response) {
+$app->get('/name/{name}', function (Request $request, Response $response) {
 
     $name = $request->getAttribute('name');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM personne LEFT JOIN clef ON personne.id = clef.id_personne WHERE nom LIKE :name;');
+    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.name = :name');
     $res->bindValue(':name', $name);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -31,12 +31,12 @@ $app->get('/nom/{name}', function (Request $request, Response $response) {
 });
 
 // Recherche personne de la base de donnée via le prenom
-$app->get('/prenom/{firstname}', function (Request $request, Response $response) {
+$app->get('/firstname/{firstname}', function (Request $request, Response $response) {
 
     $FirstName = $request->getAttribute('firstname');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM personne LEFT JOIN clef ON personne.id = clef.id_personne WHERE prenom LIKE :firstname;');
+    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.firstname = :firstname');
     $res->bindValue(':firstname', $FirstName);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);

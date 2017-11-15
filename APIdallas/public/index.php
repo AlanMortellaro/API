@@ -52,7 +52,7 @@ $app->get('/prenom/{firstname}', function (Request $request, Response $response)
 $app->get('/users', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM personne LEFT JOIN clef ON personne.id = clef.id_personne');
+    $res = $cnn->prepare('SELECT * from tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 

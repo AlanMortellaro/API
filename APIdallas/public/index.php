@@ -86,7 +86,7 @@ $app->get('/user/key/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id, tbl_keys.UID FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
+    $res = $cnn->prepare('SELECT tbl_keys.id, tbl_keys.UID FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -122,7 +122,7 @@ $app->get('/keys', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_keys;');
+    $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -150,7 +150,10 @@ $app->post("/key/create", function ($request, $response) {
     {
       $data = 'connerie';
     }
-
+    else
+    {
+      echo 'dd';
+    }
     return $response->withHeader('Content-Type', 'application/json');
     return $this->response->withJson($data);
 });

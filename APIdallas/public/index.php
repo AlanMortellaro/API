@@ -113,20 +113,25 @@ $app->get('/key/user/{id}', function (Request $request, Response $response) {
 
 //=========================================POST======================================================
 
-//add user via firstname and name
+//add user
 $app->post("/create/user", function ($request, $response) {
 
     $data = $request->getParsedBody();
 
-    $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('INSERT INTO tbl_users(firstname, name) VALUES (:firstname,:name);');
-    $res->bindValue(':firstname', $data['firstname']);
-    $res->bindValue(':name', $data['name']);
-    $res->execute();
+  //  if()
+  //  {
+      $cnn = getConnexion('apidallas');
+      $res = $cnn->prepare('INSERT INTO tbl_users(firstname, name) VALUES (:firstname,:name);');
+      $res->bindValue(':firstname', $data['firstname']);
+      $res->bindValue(':name', $data['name']);
+      $res->execute();
 
-    var_dump($data);
-
-    return $response->withHeader('Content-Type', 'application/json');
+      return $response->withHeader('Content-Type', 'application/json');
+  //  }
+  //  else
+  //  {
+  //    echo "Veuillez renseigner le nom et le prénom";
+  //  }
 });
 
 $app->post("/create/key", function ($request, $response) {

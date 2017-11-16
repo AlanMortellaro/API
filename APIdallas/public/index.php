@@ -128,13 +128,18 @@ $app->get('/keys', function (Request $request, Response $response) {
 });
 
 $app->post("/user/create", function ($request, $response) {
+
     $data = $request->getParsedBody();
-    if($data == '')
-    {
-      $data = 'connerie';
-    }
+
+    $cnn = getConnexion('apidallas');
+    $res = $cnn->prepare('INSERT INTO tbl_users(firstname, name) VALUES (:firstname,:name);');
+    $res->bindValue(':firstname', $data['firstname']);
+    $res->bindValue(':name', $data['name']);
+    $res->execute();
+
+    var_dump($data);
+
     return $response->withHeader('Content-Type', 'application/json');
-    return $this->response->withJson($data);
 });
 
 $app->post("/key/create", function ($request, $response) {
@@ -162,9 +167,6 @@ $app->put('/user/[{id}]', function ($request, $response, $args) {
       return $response->withHeader('Content-Type', 'application/json');
       return $response;
     });
-
-
-$app->run();
 
 
 if (PHP_SAPI == 'cli-server') {

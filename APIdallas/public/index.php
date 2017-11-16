@@ -9,48 +9,13 @@ require '../vendor/autoload.php';
 
 $app = new \Slim\App();
 
-
-// Recherche personne de la base de donnée via le nom
-$app->get('/name/{name}', function (Request $request, Response $response) {
-
-    $name = $request->getAttribute('name');
-
-    $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.name = :name;');
-    $res->bindValue(':name', $name);
-    $res->execute();
-    $res = $res->fetchAll(PDO::FETCH_ASSOC);
-
-    $jsonPerson = json_encode($res);
-    $response->getBody()->write($jsonPerson);
-
-    return $response->withHeader('Content-Type', 'application/json');
-    return $response;
-});
-
-// Recherche personne de la base de donnée via le prenom
-$app->get('/firstname/{firstname}', function (Request $request, Response $response) {
-
-    $FirstName = $request->getAttribute('firstname');
-
-    $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.firstname = :firstname;');
-    $res->bindValue(':firstname', $FirstName);
-    $res->execute();
-    $res = $res->fetchAll(PDO::FETCH_ASSOC);
-
-    $jsonPerson = json_encode($res);
-    $response->getBody()->write($jsonPerson);
-
-    return $response->withHeader('Content-Type', 'application/json');
-    return $response;
-});
+//=========================================GET=======================================================
 
 //retourne tous users
 $app->get('/all', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id;');
+    $res = $cnn->prepare('SELECT tbl_keys.id AS id_keys, UID, tbl_users.id AS id_user, firstname, name FROM `tbl_users` LEFT JOIN tbl_keys ON tbl_users.id = tbl_keys.id_users;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -58,7 +23,6 @@ $app->get('/all', function (Request $request, Response $response) {
     $response->getBody()->write($jsonPerson);
 
     return $response->withHeader('Content-Type', 'application/json');
-    return $response;
 });
 
 //retourne tous les utilisateurs
@@ -75,17 +39,13 @@ $app->get('/users', function (Request $request, Response $response) {
     $response->getBody()->write($jsonPerson);
 
     return $response->withHeader('Content-Type', 'application/json');
-    return $response;
 });
 
-//retourne les clefs d'un utilisateur via son id
-$app->get('/user/key/{id}', function (Request $request, Response $response) {
-
-    $id = $request->getAttribute('id');
+//retourne toutes les clefs
+$app->get('/keys', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
-    $res->bindValue(':id', $id);
+    $res = $cnn->prepare('SELECT * FROM tbl_keys;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -95,13 +55,13 @@ $app->get('/user/key/{id}', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-//retourne les clef via l'id
+//retourne une clef selon l'id de la clef
 $app->get('/key/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
+    $res = $cnn->prepare('SELECT * FROM tbl_keys WHERE tbl_keys.id = :id;');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -110,14 +70,33 @@ $app->get('/key/{id}', function (Request $request, Response $response) {
     $response->write($jsonPerson);
 
     return $response->withHeader('Content-Type', 'application/json');
-    //return $response->withStatus(200);
 });
 
-//retourne toutes les clefs
-$app->get('/keys', function (Request $request, Response $response) {
+//retourne un utilisateur selon l'id de l'utilisateur
+$app->get('/user/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id;');
+    $res = $cnn->prepare('SELECT * FROM tbl_users WHERE tbl_users.id = :id;');
+    $res->bindValue(':id', $id);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+//retourne les clefs d'un utilisateur via son id
+$app->get('/key/user/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
+
+    $cnn = getConnexion('apidallas');
+    $res = $cnn->prepare('SELECT tbl_keys.id, UID FROM tbl_keys LEFT JOIN tbl_users ON tbl_keys.id_users = tbl_users.id WHERE tbl_users.id = :id;');
+    $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -127,7 +106,15 @@ $app->get('/keys', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-$app->post("/user/create", function ($request, $response) {
+//====================================================================================================
+
+
+
+
+//=========================================POST======================================================
+
+//add user via firstname and name
+$app->post("/create/user", function ($request, $response) {
 
     $data = $request->getParsedBody();
 
@@ -142,7 +129,7 @@ $app->post("/user/create", function ($request, $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-$app->post("/key/create", function ($request, $response) {
+$app->post("/create/key", function ($request, $response) {
     $data = $request->getParsedBody();
     if($data == '')
     {
@@ -151,6 +138,13 @@ $app->post("/key/create", function ($request, $response) {
     return $response->withHeader('Content-Type', 'application/json');
     return $this->response->withJson($data);
 });
+
+//====================================================================================================
+
+
+
+
+//=========================================PUT========================================================
 
 $app->put('/user/[{id}]', function ($request, $response, $args) {
 
@@ -168,6 +162,16 @@ $app->put('/user/[{id}]', function ($request, $response, $args) {
       return $response;
     });
 
+//====================================================================================================
+
+
+
+
+//========================================DELETE=======================================================
+
+
+
+//====================================================================================================
 
 if (PHP_SAPI == 'cli-server') {
     // To help the built-in PHP dev server, check if the request was actually for

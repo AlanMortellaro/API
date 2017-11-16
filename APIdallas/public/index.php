@@ -63,14 +63,13 @@ $app->get('/all', function (Request $request, Response $response) {
     return $response;
 });
 
-//retourne l'utilisateur donc via son id
-$app->get('/user/{id}', function (Request $request, Response $response) {
+//retourne tous les utilisateurs
+$app->get('/users', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
-    $res->bindValue(':id', $id);
+    $res = $cnn->prepare('SELECT * FROM tbl_users;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 

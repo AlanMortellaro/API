@@ -2,8 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-session_start();
-
 require_once('inc/connexion.inc.php');
 
 
@@ -86,7 +84,7 @@ $app->get('/user/key/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id, tbl_keys.UID FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
+    $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -95,7 +93,6 @@ $app->get('/user/key/{id}', function (Request $request, Response $response) {
     $response->getBody()->write($jsonPerson);
 
     return $response->withHeader('Content-Type', 'application/json');
-    return $response;
 });
 
 //retourne les clef via l'id
@@ -104,22 +101,20 @@ $app->get('/key/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT * FROM tbl_keys WHERE id = :id;');
+    $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
     $jsonPerson = json_encode($res);
-    $response->getBody()->write($jsonPerson);
+    $response->write($jsonPerson);
 
     return $response->withHeader('Content-Type', 'application/json');
-    return $response;
+    //return $response->withStatus(200);
 });
 
 //retourne toutes les clefs
 $app->get('/keys', function (Request $request, Response $response) {
-
-    $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT tbl_keys.id AS id_key, tbl_keys.UID, tbl_users.id AS id_user FROM tbl_users LEFT JOIN user_key ON user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id;');
@@ -130,7 +125,6 @@ $app->get('/keys', function (Request $request, Response $response) {
     $response->getBody()->write($jsonPerson);
 
     return $response->withHeader('Content-Type', 'application/json');
-    return $response;
 });
 
 $app->post("/user/create", function ($request, $response) {
@@ -139,7 +133,6 @@ $app->post("/user/create", function ($request, $response) {
     {
       $data = 'connerie';
     }
-
     return $response->withHeader('Content-Type', 'application/json');
     return $this->response->withJson($data);
 });
@@ -149,10 +142,6 @@ $app->post("/key/create", function ($request, $response) {
     if($data == '')
     {
       $data = 'connerie';
-    }
-    else
-    {
-      echo 'dd';
     }
     return $response->withHeader('Content-Type', 'application/json');
     return $this->response->withJson($data);
@@ -189,21 +178,19 @@ if (PHP_SAPI == 'cli-server') {
 }
 
 require __DIR__ . '/../vendor/autoload.php';
-
-session_start();
-
-// Instantiate the app
-$settings = require __DIR__ . '/../src/settings.php';
-$app = new \Slim\App($settings);
-
-// Set up dependencies
-require __DIR__ . '/../src/dependencies.php';
-
-// Register middleware
-require __DIR__ . '/../src/middleware.php';
-
-// Register routes
-require __DIR__ . '/../src/routes.php';
+// // Instantiate the app
+// $settings = require __DIR__ . '/../src/settings.php';
+// $app = new \Slim\App($settings);
+//
+// // Set up dependencies
+// require __DIR__ . '/../src/dependencies.php';
+//
+// // Register middleware
+// require __DIR__ . '/../src/middleware.php';
+//
+// // Register routes
+// require __DIR__ . '/../src/routes.php';
+//
 
 // Run app
 $app->run();

@@ -81,6 +81,24 @@ $app->get('/user/{id}', function (Request $request, Response $response) {
     return $response;
 });
 
+//retourne les clefs d'un utilisateur via son id
+$app->get('/user/key/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
+
+    $cnn = getConnexion('apidallas');
+    $res = $cnn->prepare('SELECT tbl_keys.id, tbl_keys.UID FROM tbl_users LEFT JOIN user_key on user_key.id_user = tbl_users.id LEFT JOIN tbl_keys on user_key.id_key = tbl_keys.id WHERE tbl_users.id = :id;');
+    $res->bindValue(':id', $id);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+    return $response;
+});
+
 //retourne toutes les clefs
 $app->get('/key/{id}', function (Request $request, Response $response) {
 

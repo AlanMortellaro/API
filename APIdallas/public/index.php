@@ -113,35 +113,69 @@ $app->get('/key/user/{id}', function (Request $request, Response $response) {
 
 //=========================================POST======================================================
 
-//add user
+// Create user in database
 $app->post("/create/user", function ($request, $response) {
 
     $data = $request->getParsedBody();
 
-  //  if()
-  //  {
-      $cnn = getConnexion('apidallas');
-      $res = $cnn->prepare('INSERT INTO tbl_users(firstname, name) VALUES (:firstname,:name);');
-      $res->bindValue(':firstname', $data['firstname']);
-      $res->bindValue(':name', $data['name']);
-      $res->execute();
+    if(array_key_exists('name', $_POST) && array_key_exists('firstname', $_POST))
+    {
+      if($_POST['name'] !== '' AND $_POST['firstname'] !== '')
+      {
+        $cnn = getConnexion('apidallas');
+        $res = $cnn->prepare('INSERT INTO tbl_users(firstname, name) VALUES (:firstname,:name);');
+        $res->bindValue(':firstname', $data['firstname']);
+        $res->bindValue(':name', $data['name']);
+        $res->execute();
 
-      return $response->withHeader('Content-Type', 'application/json');
-  //  }
-  //  else
-  //  {
-  //    echo "Veuillez renseigner le nom et le prénom";
-  //  }
+        return $response->withHeader('Content-Type', 'application/json');
+      }
+      else
+      {
+          $response->getBody()->write('Veuillez renseigner un nom et un prénom');
+      }
+    }
+    else
+    {
+      $response->getBody()->write('Veuillez déclarer "$_POST[\'name\']" et "$_POST[\'firstname\']"');
+    }
 });
 
+
+// Create key in database
 $app->post("/create/key", function ($request, $response) {
-    $data = $request->getParsedBody();
-    if($data == '')
-    {
-      $data = 'connerie';
+
+      $data = $request->getParsedBody();
+      var_dump($data);
+      if(array_key_exists('UID', $_POST))
+      {
+        if($_POST['UID'] !== '')
+        {
+          $cnn = getConnexion('apidallas');
+          if(array_key_exists('id_user', $_POST))
+          {
+            $res = $cnn->prepare('INSERT INTO tbl_keys(UID, id_users) VALUES (:uid,:id_user);');
+            $res->bindValue(':uid', $data['UID']);
+            $res->bindValue(':id_user', $data['id_user']);
+          }
+          else
+          {
+            $res = $cnn->prepare('INSERT INTO tbl_keys(UID) VALUES (:uid);');
+            $res->bindValue(':uid', $data['UID']);
+          }
+          $res->execute();
+
+          return $response->withHeader('Content-Type', 'application/json');
+        }
+        else
+        {
+            $response->getBody()->write('Veuillez renseigner l\'UID de la clef');
+        }
     }
-    return $response->withHeader('Content-Type', 'application/json');
-    return $this->response->withJson($data);
+    else
+    {
+      $response->getBody()->write('Veuillez déclarer "$_POST[\'UID\']"');
+    }
 });
 
 //====================================================================================================

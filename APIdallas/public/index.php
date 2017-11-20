@@ -146,7 +146,7 @@ $app->post("/create/user", function ($request, $response) {
 $app->post("/create/key", function ($request, $response) {
 
       $data = $request->getParsedBody();
-      var_dump($data);
+      var_dump($_POST);
       if(array_key_exists('UID', $_POST))
       {
         if($_POST['UID'] !== '')
@@ -184,6 +184,58 @@ $app->post("/create/key", function ($request, $response) {
 
 
 //=========================================PUT========================================================
+
+
+
+$app->put('/attribute/user/key/[{id}]', function ($request, $response, $args) {
+
+      $id = $request->getAttribute('id');
+      $data = $request->getParsedBody();
+      var_dump($data);
+      var_dump($id);
+      if(array_key_exists('id_user', $data))
+      {
+        if($data['id_user'] !== '')
+        {
+            $cnn = getConnexion('apidallas');
+            $res = $cnn->prepare('UPDATE tbl_keys SET id_users = :id_user WHERE tbl_keys.id = :id');
+            $res->bindParam(':id_user', $data['id_user'], PDO::PARAM_INT);
+            $res->bindParam(':id', $id, PDO::PARAM_INT);
+            $res->execute();
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+        else
+        {
+            $response->getBody()->write('Veuillez renseigner le paramètre "id_user" (NULL)');
+        }
+      }
+      else
+      {
+          $response->getBody()->write('Veuillez déclarer le paramètre "id_user"');
+      }
+
+
+
+    });
+
+    $app->put('/desattribute/user/key/[{id}]', function ($request, $response, $args) {
+
+          $id = $request->getAttribute('id');
+          $data = $request->getParsedBody();
+          var_dump($data);
+          var_dump($id);
+
+          $cnn = getConnexion('apidallas');
+          $res = $cnn->prepare('UPDATE tbl_keys SET id_users = NULL WHERE tbl_keys.id = :id');
+          $res->bindParam(':id', $id, PDO::PARAM_INT);
+          $res->execute();
+
+          return $response->withHeader('Content-Type', 'application/json');
+
+
+
+
+        });
 
 $app->put('/user/[{id}]', function ($request, $response, $args) {
 

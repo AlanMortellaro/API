@@ -186,8 +186,8 @@ $app->post("/create/key", function ($request, $response) {
 //=========================================PUT========================================================
 
 
-
-$app->put('/attribute/user/key/[{id}]', function ($request, $response, $args) {
+// Attribute a key for an user
+$app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
@@ -218,7 +218,9 @@ $app->put('/attribute/user/key/[{id}]', function ($request, $response, $args) {
 
     });
 
-    $app->put('/desattribute/user/key/[{id}]', function ($request, $response, $args) {
+
+// Desattribute a key for an user
+    $app->put('/desattribute/key/[{id}]', function ($request, $response, $args) {
 
           $id = $request->getAttribute('id');
           $data = $request->getParsedBody();
@@ -237,20 +239,34 @@ $app->put('/attribute/user/key/[{id}]', function ($request, $response, $args) {
 
         });
 
-$app->put('/user/[{id}]', function ($request, $response, $args) {
+// Update user
+$app->put('/edit/user/[{id}]', function ($request, $response, $args) {
 
+      $data = $request->getParsedBody();
       $id = $request->getAttribute('id');
 
-      $cnn = getConnexion('apidallas');
-      $res = $cnn->prepare('UPDATE personne SET nom=\'teeeeeeest\' WHERE id LIKE :id');
-      $res->bindValue(':id', $id);
-      $res->execute();
-      $res = $res->fetchAll(PDO::FETCH_ASSOC);
+      var_dump($data);
 
-      $response->getBody()->write("{name: 'teeeeeeest' WHERE id LIKE '$id'}");
-
-      return $response->withHeader('Content-Type', 'application/json');
-      return $response;
+      if(array_key_exists('name', $data) && array_key_exists('firstname', $data))
+      {
+        if($data['name'] !== '' && $data['firstname'] !== '')
+        {
+            $cnn = getConnexion('apidallas');
+            $res = $cnn->prepare('UPDATE tbl_users SET name = :name, firstname = :firstname WHERE id LIKE :id');
+            $res->bindParam(':name', $data['name']);
+            $res->bindParam(':firstname', $data['firstname']);
+            $res->bindParam(':id', $id);
+            $res->execute();
+        }
+        else
+        {
+          $response->getBody()->write('Veuillez renseigner "$data[\'name\']" et "$data[\'firstname\']" ');
+        }
+      }
+      else
+      {
+        $response->getBody()->write('Veuillez passer en paramètre "name" et "firstname" ');
+      }
     });
 
 //====================================================================================================

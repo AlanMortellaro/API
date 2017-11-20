@@ -274,9 +274,30 @@ $app->put('/edit/user/[{id}]', function ($request, $response, $args) {
 
 
 
+
 //========================================DELETE=======================================================
 
+// Delete an user in database
+$app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
 
+        $id = $request->getAttribute('id');
+
+        $cnn = getConnexion('apidallas');
+        $res = $cnn->prepare('DELETE FROM tbl_users WHERE tbl_users.id LIKE :id');
+        $res->bindParam(':id', $id);
+        $res->execute();
+    });
+
+// Delete a key in database
+$app->delete('/delete/key/[{id}]', function ($request, $response, $args) {
+
+        $id = $request->getAttribute('id');
+
+        $cnn = getConnexion('apidallas');
+        $res = $cnn->prepare('DELETE FROM tbl_keys WHERE tbl_keys.id LIKE :id');
+        $res->bindParam(':id', $id);
+        $res->execute();
+    });
 
 //====================================================================================================
 

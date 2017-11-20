@@ -291,9 +291,9 @@ $app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
 
         if(empty($res))
         {
-          $res = $cnn->prepare('DELETE FROM tbl_users WHERE tbl_users.id LIKE :id');
-          $res->bindParam(':id', $id);
-          $res->execute();
+            $res = $cnn->prepare('DELETE FROM tbl_users WHERE tbl_users.id LIKE :id');
+            $res->bindParam(':id', $id);
+            $res->execute();
         }
         else
         {

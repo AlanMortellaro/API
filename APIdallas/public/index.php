@@ -15,7 +15,7 @@ $app = new \Slim\App();
 $app->get('/all', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id AS id_keys, UID, tbl_users.id AS id_user, firstname, name FROM `tbl_users` LEFT JOIN tbl_keys ON tbl_users.id = tbl_keys.id_users;');
+    $res = $cnn->prepare('SELECT tbl_keys.id AS id_keys, UID, tbl_users.id AS id_user, firstname, name FROM `tbl_users` LEFT JOIN tbl_keys ON tbl_users.id = tbl_keys.id_user;');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -95,7 +95,7 @@ $app->get('/key/user/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion('apidallas');
-    $res = $cnn->prepare('SELECT tbl_keys.id, UID FROM tbl_keys LEFT JOIN tbl_users ON tbl_keys.id_users = tbl_users.id WHERE tbl_users.id = :id;');
+    $res = $cnn->prepare('SELECT tbl_keys.id, UID FROM tbl_keys LEFT JOIN tbl_users ON tbl_keys.id_user = tbl_users.id WHERE tbl_users.id = :id;');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -154,7 +154,7 @@ $app->post("/create/key", function ($request, $response) {
           $cnn = getConnexion('apidallas');
           if(array_key_exists('id_user', $_POST))
           {
-            $res = $cnn->prepare('INSERT INTO tbl_keys(UID, id_users) VALUES (:uid,:id_user);');
+            $res = $cnn->prepare('INSERT INTO tbl_keys(UID, id_user) VALUES (:uid,:id_user);');
             $res->bindValue(':uid', $data['UID']);
             $res->bindValue(':id_user', $data['id_user']);
           }
@@ -198,7 +198,7 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
         if($data['id_user'] !== '')
         {
             $cnn = getConnexion('apidallas');
-            $res = $cnn->prepare('UPDATE tbl_keys SET id_users = :id_user WHERE tbl_keys.id = :id');
+            $res = $cnn->prepare('UPDATE tbl_keys SET id_user = :id_user WHERE tbl_keys.id = :id');
             $res->bindParam(':id_user', $data['id_user'], PDO::PARAM_INT);
             $res->bindParam(':id', $id, PDO::PARAM_INT);
             $res->execute();
@@ -228,7 +228,7 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
           var_dump($id);
 
           $cnn = getConnexion('apidallas');
-          $res = $cnn->prepare('UPDATE tbl_keys SET id_users = NULL WHERE tbl_keys.id = :id');
+          $res = $cnn->prepare('UPDATE tbl_keys SET id_user = NULL WHERE tbl_keys.id = :id');
           $res->bindParam(':id', $id, PDO::PARAM_INT);
           $res->execute();
 
@@ -283,9 +283,24 @@ $app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
         $id = $request->getAttribute('id');
 
         $cnn = getConnexion('apidallas');
-        $res = $cnn->prepare('DELETE FROM tbl_users WHERE tbl_users.id LIKE :id');
+        $res = $cnn->prepare('SELECT * FROM tbl_keys WHERE id_user = :id');
         $res->bindParam(':id', $id);
         $res->execute();
+        $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+
+        if(empty($res))
+        {
+          $res = $cnn->prepare('DELETE FROM tbl_users WHERE tbl_users.id LIKE :id');
+          $res->bindParam(':id', $id);
+          $res->execute();
+        }
+        else
+        {
+            $response->getBody()->write('Une clef est assigné a cet utilisateur veuillez d\'abord désassigner la clef de cet utilisateur <br><br>');
+            $jsonPerson = json_encode($res);
+            $response->getBody()->write($jsonPerson);
+        }
     });
 
 // Delete a key in database

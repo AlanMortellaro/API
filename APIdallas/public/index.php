@@ -146,7 +146,7 @@ $app->post("/create/user", function ($request, $response) {
 $app->post("/create/key", function ($request, $response) {
 
       $data = $request->getParsedBody();
-      var_dump($_POST);
+
       if(array_key_exists('UID', $_POST))
       {
         if($_POST['UID'] !== '')
@@ -191,8 +191,7 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
-      var_dump($data);
-      var_dump($id);
+
       if(array_key_exists('id_user', $data))
       {
         if($data['id_user'] !== '')
@@ -202,6 +201,7 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
             $res->bindParam(':id_user', $data['id_user'], PDO::PARAM_INT);
             $res->bindParam(':id', $id, PDO::PARAM_INT);
             $res->execute();
+            $response->getBody()->write("Vous avez attribué la clef " . $id . "à l'utilisateur numéro " . $data['id_user']);
             return $response->withHeader('Content-Type', 'application/json');
         }
         else

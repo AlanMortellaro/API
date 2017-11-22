@@ -224,14 +224,13 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
 
           $id = $request->getAttribute('id');
           $data = $request->getParsedBody();
-          var_dump($data);
-          var_dump($id);
 
           $cnn = getConnexion('apidallas');
           $res = $cnn->prepare('UPDATE tbl_keys SET id_user = NULL WHERE tbl_keys.id = :id');
           $res->bindParam(':id', $id, PDO::PARAM_INT);
           $res->execute();
 
+          $response->getBody()->write("Vous avez enlevé l'attribution de la clef numéro " . $id . " à l'utilisateur numéro " . $data);
           return $response->withHeader('Content-Type', 'application/json');
 
 

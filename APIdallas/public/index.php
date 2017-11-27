@@ -28,11 +28,10 @@ $app->get('/all', function (Request $request, Response $response) {
 //retourne tous les utilisateurs
 $app->get('/users', function (Request $request, Response $response) {
 
-    $id = $request->getAttribute('id');
-
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_users;');
     $res->execute();
+
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
     $jsonPerson = json_encode($res);
@@ -66,9 +65,21 @@ $app->get('/key/{id}', function (Request $request, Response $response) {
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-    $jsonPerson = json_encode($res);
-    $response->write($jsonPerson);
+    if(array_key_exists('0', $res))
+    {
+      $jsonPerson = json_encode($res);
+      $response->write($jsonPerson);
+    }
+    else
+    {
+      $jsonRes = array
+      (
+        'error' => 'V',
+        'message' => 'La clé demandé n\'existe pas'
+      );
 
+      $response->write(json_encode($jsonRes));
+    }
     return $response->withHeader('Content-Type', 'application/json');
 });
 
@@ -220,7 +231,7 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
 
 
 // Desattribute a key for an user
-    $app->put('/desattribute/key/[{id}]', function ($request, $response, $args) {
+$app->put('/desattribute/key/[{id}]', function ($request, $response, $args) {
 
           $id = $request->getAttribute('id');
           $data = $request->getParsedBody();
@@ -286,7 +297,6 @@ $app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
         $res->bindParam(':id', $id);
         $res->execute();
         $res = $res->fetchAll(PDO::FETCH_ASSOC);
-
 
         if(empty($res))
         {

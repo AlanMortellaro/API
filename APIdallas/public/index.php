@@ -12,7 +12,7 @@ $app = new \Slim\App();
 //=========================================GET=======================================================
 
 //retourne tous users
-$app->get('/all', function (Request $request, Response $response) {
+$app->get('/v2/all', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT tbl_keys.id AS id_keys, UID, tbl_users.id AS id_user, firstname, name FROM `tbl_users` LEFT JOIN tbl_keys ON tbl_users.id = tbl_keys.id_user;');
@@ -26,7 +26,7 @@ $app->get('/all', function (Request $request, Response $response) {
 });
 
 //retourne tous les utilisateurs
-$app->get('/users', function (Request $request, Response $response) {
+$app->get('/v2/users', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_users;');
@@ -41,7 +41,7 @@ $app->get('/users', function (Request $request, Response $response) {
 });
 
 //retourne toutes les clefs
-$app->get('/keys', function (Request $request, Response $response) {
+$app->get('/v2/keys', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_keys;');
@@ -55,7 +55,7 @@ $app->get('/keys', function (Request $request, Response $response) {
 });
 
 //retourne une clef selon l'id de la clef
-$app->get('/key/{id}', function (Request $request, Response $response) {
+$app->get('/v2/key/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
@@ -84,7 +84,7 @@ $app->get('/key/{id}', function (Request $request, Response $response) {
 });
 
 //retourne un utilisateur selon l'id de l'utilisateur
-$app->get('/user/{id}', function (Request $request, Response $response) {
+$app->get('/v2/user/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
@@ -101,7 +101,7 @@ $app->get('/user/{id}', function (Request $request, Response $response) {
 });
 
 //retourne les clefs d'un utilisateur via son id
-$app->get('/key/user/{id}', function (Request $request, Response $response) {
+$app->get('/v2/key/user/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
@@ -125,7 +125,7 @@ $app->get('/key/user/{id}', function (Request $request, Response $response) {
 //=========================================POST======================================================
 
 // Create user in database
-$app->post("/create/user", function ($request, $response) {
+$app->post("/v2/user", function ($request, $response) {
 
     $data = $request->getParsedBody();
 
@@ -154,7 +154,7 @@ $app->post("/create/user", function ($request, $response) {
 
 
 // Create key in database
-$app->post("/create/key", function ($request, $response) {
+$app->post("/v2/key", function ($request, $response) {
 
       $data = $request->getParsedBody();
 
@@ -198,7 +198,7 @@ $app->post("/create/key", function ($request, $response) {
 
 
 // Attribute a key for an user
-$app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
+$app->put('/v2/key/[{id}]', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
@@ -231,7 +231,7 @@ $app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
 
 
 // Desattribute a key for an user
-$app->put('/desattribute/key/[{id}]', function ($request, $response, $args) {
+$app->put('/v2/desattribute/key/[{id}]', function ($request, $response, $args) {
 
           $id = $request->getAttribute('id');
           $data = $request->getParsedBody();
@@ -250,7 +250,7 @@ $app->put('/desattribute/key/[{id}]', function ($request, $response, $args) {
         });
 
 // Update user
-$app->put('/edit/user/[{id}]', function ($request, $response, $args) {
+$app->put('/v2/user/[{id}]', function ($request, $response, $args) {
 
       $data = $request->getParsedBody();
       $id = $request->getAttribute('id');
@@ -288,7 +288,7 @@ $app->put('/edit/user/[{id}]', function ($request, $response, $args) {
 //========================================DELETE=======================================================
 
 // Delete an user in database
-$app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
+$app->delete('/v2/user/[{id}]', function ($request, $response, $args) {
 
         $id = $request->getAttribute('id');
 
@@ -313,7 +313,7 @@ $app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
     });
 
 // Delete a key in database
-$app->delete('/delete/key/[{id}]', function ($request, $response, $args) {
+$app->delete('/v2/key/[{id}]', function ($request, $response, $args) {
 
         $id = $request->getAttribute('id');
 

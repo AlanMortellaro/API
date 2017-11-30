@@ -31,14 +31,14 @@ USE `apidallas`;
 CREATE TABLE `tbl_keys` (
   `id` int(11) NOT NULL,
   `UID` varchar(25) NOT NULL,
-  `id_users` int(11) DEFAULT NULL
+  `id_user` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `tbl_keys`
 --
 
-INSERT INTO `tbl_keys` (`id`, `UID`, `id_users`) VALUES
+INSERT INTO `tbl_keys` (`id`, `UID`, `id_user`) VALUES
 (1, '386478374', 1),
 (2, '98123728232', 2),
 (3, '468378473847', 1),
@@ -78,7 +78,7 @@ INSERT INTO `tbl_users` (`id`, `firstname`, `name`) VALUES
 --
 ALTER TABLE `tbl_keys`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_button_keys_id_users` (`id_users`);
+  ADD KEY `FK_button_keys_id_user` (`id_user`);
 
 --
 -- Indexes for table `tbl_users`
@@ -108,7 +108,7 @@ ALTER TABLE `tbl_users`
 -- Constraints for table `tbl_keys`
 --
 ALTER TABLE `tbl_keys`
-  ADD CONSTRAINT `FK_button_keys_id_users` FOREIGN KEY (`id_users`) REFERENCES `tbl_users` (`id`);
+  ADD CONSTRAINT `FK_button_keys_id_user` FOREIGN KEY (`id_user`) REFERENCES `tbl_users` (`id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

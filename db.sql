@@ -94,6 +94,9 @@ ALTER TABLE `tbl_keys`
 ALTER TABLE `tbl_users`
   ADD PRIMARY KEY (`id`);
 
+  ALTER TABLE `tbl_admin`
+    ADD PRIMARY KEY (`id`);
+
 --
 -- AUTO_INCREMENT for dumped tables
 --
@@ -102,12 +105,15 @@ ALTER TABLE `tbl_users`
 -- AUTO_INCREMENT for table `tbl_keys`
 --
 ALTER TABLE `tbl_keys`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
+ALTER TABLE `tbl_admin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
 -- AUTO_INCREMENT for table `tbl_users`
 --
 ALTER TABLE `tbl_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- Constraints for dumped tables
 --

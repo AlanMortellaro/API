@@ -34,6 +34,14 @@ CREATE TABLE `tbl_keys` (
   `id_user` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+CREATE TABLE `tbl_admin` (
+  `id` int(11) NOT NULL,
+  `username` varchar(25) NOT NULL,
+  `token` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 --
 -- Dumping data for table `tbl_keys`
 --

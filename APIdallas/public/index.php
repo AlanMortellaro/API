@@ -117,6 +117,17 @@ $app->get('/v2/key/user/{id}', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
+//test token
+$app->get('/v2/debug', function (Request $request, Response $response) {
+    $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(8)); //generate a random token
+
+    $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment
+
+    $response->getBody()->write(json_encode($arrRtn));
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
 //====================================================================================================
 
 

@@ -12,7 +12,7 @@ $app = new \Slim\App();
 //=========================================GET=======================================================
 
 //retourne tous users
-$app->get('/api/v2/all', function (Request $request, Response $response) {
+$app->get('/all', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT tbl_keys.id AS id_keys, UID, tbl_users.id AS id_user, firstname, name FROM `tbl_users` LEFT JOIN tbl_keys ON tbl_users.id = tbl_keys.id_user;');
@@ -26,7 +26,7 @@ $app->get('/api/v2/all', function (Request $request, Response $response) {
 });
 
 //retourne tous les utilisateurs
-$app->get('/api/v2/users', function (Request $request, Response $response) {
+$app->get('/users', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_users;');
@@ -41,7 +41,7 @@ $app->get('/api/v2/users', function (Request $request, Response $response) {
 });
 
 //retourne toutes les clefs
-$app->get('/api/v2/keys', function (Request $request, Response $response) {
+$app->get('/keys', function (Request $request, Response $response) {
 
     $cnn = getConnexion('apidallas');
     $res = $cnn->prepare('SELECT * FROM tbl_keys;');
@@ -55,7 +55,7 @@ $app->get('/api/v2/keys', function (Request $request, Response $response) {
 });
 
 //retourne une clef selon l'id de la clef
-$app->get('/api/v2/key/{id}', function (Request $request, Response $response) {
+$app->get('/key/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
@@ -84,7 +84,7 @@ $app->get('/api/v2/key/{id}', function (Request $request, Response $response) {
 });
 
 //retourne un utilisateur selon l'id de l'utilisateur
-$app->get('/api/v2/user/{id}', function (Request $request, Response $response) {
+$app->get('/user/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
@@ -101,7 +101,7 @@ $app->get('/api/v2/user/{id}', function (Request $request, Response $response) {
 });
 
 //retourne les clefs d'un utilisateur via son id
-$app->get('/api/v2/key/user/{id}', function (Request $request, Response $response) {
+$app->get('/key/user/{id}', function (Request $request, Response $response) {
 
     $id = $request->getAttribute('id');
 
@@ -118,7 +118,7 @@ $app->get('/api/v2/key/user/{id}', function (Request $request, Response $respons
 });
 
 //test token
-$app->get('/api/v2/debug', function (Request $request, Response $response) {
+$app->get('/debug', function (Request $request, Response $response) {
     $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(16)); //generate a random token
 
     $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment
@@ -136,7 +136,7 @@ $app->get('/api/v2/debug', function (Request $request, Response $response) {
 //=========================================POST======================================================
 
 // Create user in database
-$app->post("/api/v2/user", function ($request, $response) {
+$app->post("/create/user", function ($request, $response) {
 
     $data = $request->getParsedBody();
 
@@ -165,7 +165,7 @@ $app->post("/api/v2/user", function ($request, $response) {
 
 
 // Create key in database
-$app->post("/api/v2/key", function ($request, $response) {
+$app->post('/create/key', function ($request, $response) {
 
       $data = $request->getParsedBody();
 
@@ -209,7 +209,7 @@ $app->post("/api/v2/key", function ($request, $response) {
 
 
 // Attribute a key for an user
-$app->put('/api/v2/key/[{id}]', function ($request, $response, $args) {
+$app->put('/attribute/key/[{id}]', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
@@ -242,7 +242,7 @@ $app->put('/api/v2/key/[{id}]', function ($request, $response, $args) {
 
 
 // Desattribute a key for an user
-$app->put('/api/v2/desattribute/key/[{id}]', function ($request, $response, $args) {
+$app->put('/desattribute/key/[{id}]', function ($request, $response, $args) {
 
           $id = $request->getAttribute('id');
           $data = $request->getParsedBody();
@@ -261,7 +261,7 @@ $app->put('/api/v2/desattribute/key/[{id}]', function ($request, $response, $arg
         });
 
 // Update user
-$app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
+$app->put('/edit/user/[{id}]', function ($request, $response, $args) {
 
       $data = $request->getParsedBody();
       $id = $request->getAttribute('id');
@@ -299,7 +299,7 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
 //========================================DELETE=======================================================
 
 // Delete an user in database
-$app->delete('/api/v2/user/[{id}]', function ($request, $response, $args) {
+$app->delete('/delete/user/[{id}]', function ($request, $response, $args) {
 
         $id = $request->getAttribute('id');
 
@@ -324,7 +324,7 @@ $app->delete('/api/v2/user/[{id}]', function ($request, $response, $args) {
     });
 
 // Delete a key in database
-$app->delete('/api/v2/key/[{id}]', function ($request, $response, $args) {
+$app->delete('/delete/key/[{id}]', function ($request, $response, $args) {
 
         $id = $request->getAttribute('id');
 

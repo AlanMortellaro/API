@@ -1,6 +1,6 @@
 <?php
-function getConnexion($nom){
-  $dsn = 'mysql:dbname=api;host=localhost';
+function getConnexion(){
+  $dsn = 'mysql:dbname=apidallas;host=localhost';
   $user = 'root';
   $password = '';
 

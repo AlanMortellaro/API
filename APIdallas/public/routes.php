@@ -8,7 +8,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/api/v2/users', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
-    $res = $cnn->prepare('SELECT * FROM tbl_user;');
+    $res = $cnn->prepare('SELECT * FROM tbl_user');
     $res->execute();
 
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -23,7 +23,7 @@ $app->get('/api/v2/users', function (Request $request, Response $response) {
 $app->get('/api/v2/keys', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
-    $res = $cnn->prepare('SELECT * FROM tbl_key;');
+    $res = $cnn->prepare('SELECT * FROM tbl_key');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -39,7 +39,7 @@ $app->get('/api/v2/key/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion();
-    $res = $cnn->prepare('SELECT * FROM tbl_key WHERE tbl_key.id = :id;');
+    $res = $cnn->prepare('SELECT * FROM tbl_key WHERE tbl_key.id = :id');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -68,7 +68,7 @@ $app->get('/api/v2/user/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
 
     $cnn = getConnexion();
-    $res = $cnn->prepare('SELECT * FROM tbl_user WHERE tbl_user.id = :id;');
+    $res = $cnn->prepare('SELECT * FROM tbl_user WHERE tbl_user.id = :id');
     $res->bindValue(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);

@@ -54,7 +54,7 @@ $app->get('/api/v2/key/{id}', function (Request $request, Response $response) {
       $jsonRes = array
       (
         'error' => 'T',
-        'message' => 'L\'id de la clef n\'existe pas'
+        'message' => 'Verifiez si l\'id de la clef est correct'
       );
 
       $response->write(json_encode($jsonRes));
@@ -83,7 +83,7 @@ $app->get('/api/v2/user/{id}', function (Request $request, Response $response) {
       $jsonRes = array
       (
         'error' => 'T',
-        'message' => 'L\'id de l\'utilisateur n\'existe pas'
+        'message' => 'Verifiez si l\'id de l\'utilisateur est correct'
       );
 
       $response->write(json_encode($jsonRes));
@@ -103,8 +103,21 @@ $app->get('/api/v2/user/key/{id}', function (Request $request, Response $respons
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-    $jsonPerson = json_encode($res);
-    $response->getBody()->write($jsonPerson);
+    if(array_key_exists('0', $res))
+    {
+      $jsonPerson = json_encode($res);
+      $response->write($jsonPerson);
+    }
+    else
+    {
+      $jsonRes = array
+      (
+        'error' => 'T',
+        'message' => 'Verifiez si l\'id de l\'utilisateur est correct et verifiez si l\'utilisateur en question est bien associé a une clef'
+      );
+
+      $response->write(json_encode($jsonRes));
+    }
 
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -133,8 +146,21 @@ $app->get('/api/v2/order/{id}', function (Request $request, Response $response) 
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-    $jsonPerson = json_encode($res);
-    $response->getBody()->write($jsonPerson);
+    if(array_key_exists('0', $res))
+    {
+      $jsonPerson = json_encode($res);
+      $response->write($jsonPerson);
+    }
+    else
+    {
+      $jsonRes = array
+      (
+        'error' => 'T',
+        'message' => 'Verifiez si l\'id de la commande est correct'
+      );
+
+      $response->write(json_encode($jsonRes));
+    }
 
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -163,8 +189,21 @@ $app->get('/api/v2/article/{id}', function (Request $request, Response $response
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-    $jsonPerson = json_encode($res);
-    $response->getBody()->write($jsonPerson);
+    if(array_key_exists('0', $res))
+    {
+      $jsonPerson = json_encode($res);
+      $response->write($jsonPerson);
+    }
+    else
+    {
+      $jsonRes = array
+      (
+        'error' => 'T',
+        'message' => 'Verifiez si l\'id de l\'article est correct'
+      );
+
+      $response->write(json_encode($jsonRes));
+    }
 
     return $response->withHeader('Content-Type', 'application/json');
 });

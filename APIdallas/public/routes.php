@@ -217,30 +217,30 @@ $app->post('/api/v2/key', function ($request, $response) {
       {
         if($_POST['UID'] !== '')
         {
-          $cnn = getConnexion();
-          if(array_key_exists('id_user', $_POST))
-          {
-            $res = $cnn->prepare('INSERT INTO tbl_keys(UID, id_user) VALUES (:uid,:id_user);');
+            $data['error'] = 'F';
+            $cnn = getConnexion();
+            $res = $cnn->prepare('INSERT INTO tbl_key(UID, id_user) VALUES ( :uid, :id_user)');
             $res->bindParam(':uid', $data['UID']);
             $res->bindParam(':id_user', $data['id_user']);
-          }
-          else
-          {
-            $res = $cnn->prepare('INSERT INTO tbl_keys(UID) ParamS (:uid);');
-            $res->bindParam(':uid', $data['UID']);
-          }
-          $res->execute();
+            $res->execute();
 
-          return $response->withHeader('Content-Type', 'application/json');
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
         }
         else
         {
-            $response->getBody()->write('Veuillez renseigner l\'UID de la clef');
+            $data['error'] = 'T';
+            $data['msgError'] = 'Veuillez renseigner l\'UID de la clef';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
         }
     }
     else
     {
-      $response->getBody()->write('Veuillez déclarer "$_POST[\'UID\']"');
+      $data['error'] = 'T';
+      $data['msgError'] = 'Veuillez déclarer $_POST[\'UID\']';
+      $response->getBody()->write(json_encode($data));
+      return $response->withHeader('Content-Type', 'application/json');
     }
 });
 

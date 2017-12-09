@@ -53,8 +53,8 @@ $app->get('/api/v2/key/{id}', function (Request $request, Response $response) {
     {
       $jsonRes = array
       (
-        'error' => 'V',
-        'message' => 'La clé demandé n\'existe pas'
+        'error' => 'T',
+        'message' => 'L\'id de la clef n\'existe pas'
       );
 
       $response->write(json_encode($jsonRes));
@@ -73,8 +73,21 @@ $app->get('/api/v2/user/{id}', function (Request $request, Response $response) {
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-    $jsonPerson = json_encode($res);
-    $response->write($jsonPerson);
+    if(array_key_exists('0', $res))
+    {
+      $jsonPerson = json_encode($res);
+      $response->write($jsonPerson);
+    }
+    else
+    {
+      $jsonRes = array
+      (
+        'error' => 'T',
+        'message' => 'L\'id de l\'utilisateur n\'existe pas'
+      );
+
+      $response->write(json_encode($jsonRes));
+    }
 
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -198,12 +211,18 @@ $app->post("/api/v2/user", function ($request, $response) {
       }
       else
       {
-          $response->getBody()->write('Veuillez renseigner un nom et un prénom');
+          $data['error'] = 'T';
+          $data['msgError'] = 'Veuillez renseigner un nom et un prénom';
+          $response->getBody()->write(json_encode($data));
+          return $response->withHeader('Content-Type', 'application/json');
       }
     }
     else
     {
-      $response->getBody()->write('Veuillez déclarer "$_POST[\'name\']" et "$_POST[\'firstname\']"');
+      $data['error'] = 'T';
+      $data['msgError'] = 'Veuillez déclarer $_POST[\'name\'] et $_POST[\'firstname\']';
+      $response->getBody()->write(json_encode($data));
+      return $response->withHeader('Content-Type', 'application/json');
     }
 });
 

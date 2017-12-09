@@ -40,7 +40,7 @@ $app->get('/api/v2/key/{id}', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
     $res = $cnn->prepare('SELECT * FROM tbl_key WHERE tbl_key.id = :id');
-    $res->bindValue(':id', $id);
+    $res->bindParam(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -69,7 +69,7 @@ $app->get('/api/v2/user/{id}', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
     $res = $cnn->prepare('SELECT * FROM tbl_user WHERE tbl_user.id = :id');
-    $res->bindValue(':id', $id);
+    $res->bindParam(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -86,7 +86,21 @@ $app->get('/api/v2/user/key/{id}', function (Request $request, Response $respons
 
     $cnn = getConnexion();
     $res = $cnn->prepare('SELECT tbl_key.id, UID FROM tbl_key LEFT JOIN tbl_user ON tbl_key.id_user = tbl_user.id WHERE tbl_user.id = :id;');
-    $res->bindValue(':id', $id);
+    $res->bindParam(':id', $id);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+// retourne les informations de toutes les commandes effectuer
+$app->get('/api/v2/orders', function (Request $request, Response $response) {
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT tbl_user.id AS id_user, firstname, lastname, tbl_order.id AS id_order, tbl_article.name FROM `tbl_order` LEFT JOIN tbl_user ON tbl_order.id_user = tbl_user.id LEFT JOIN content ON tbl_order.id = content.id_order LEFT JOIN tbl_article ON content.id_article = tbl_article.id');
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -102,7 +116,7 @@ $app->get('/api/v2/order/{id}', function (Request $request, Response $response) 
 
     $cnn = getConnexion();
     $res = $cnn->prepare('SELECT tbl_user.id AS id_user, firstname, lastname, tbl_article.name AS name_article, tbl_article.price FROM `tbl_order` LEFT JOIN tbl_user ON tbl_order.id_user = tbl_user.id LEFT JOIN content ON tbl_order.id = content.id_order LEFT JOIN tbl_article ON content.id_article = tbl_article.id WHERE tbl_order.id = :id');
-    $res->bindValue(':id', $id);
+    $res->bindParam(':id', $id);
     $res->execute();
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
 
@@ -112,6 +126,35 @@ $app->get('/api/v2/order/{id}', function (Request $request, Response $response) 
     return $response->withHeader('Content-Type', 'application/json');
 });
 
+// retourne les informations d'une commande
+$app->get('/api/v2/articles', function (Request $request, Response $response) {
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT * FROM tbl_article');
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+// retourne les informations d'une commande
+$app->get('/api/v2/article/{id}', function (Request $request, Response $response) {
+    $id = $request->getAttribute('id');
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT * FROM tbl_article WHERE id = :id');
+    $res->bindParam(':id', $id);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
 
 //test token
 $app->get('/api/v2/token', function (Request $request, Response $response) {
@@ -136,16 +179,21 @@ $app->post("/api/v2/user", function ($request, $response) {
 
     $data = $request->getParsedBody();
 
-    if(array_key_exists('name', $_POST) && array_key_exists('firstname', $_POST))
+    if(array_key_exists('lastname', $_POST) && array_key_exists('firstname', $_POST))
     {
-      if($_POST['name'] !== '' AND $_POST['firstname'] !== '')
+      if($_POST['lastname'] !== '' AND $_POST['firstname'] !== '')
       {
+        $data['error'] = 'F';
+        //array_push($data, 'error', 'F');
         $cnn = getConnexion();
-        $res = $cnn->prepare('INSERT INTO tbl_users(firstname, name) VALUES (:firstname,:name);');
-        $res->bindValue(':firstname', $data['firstname']);
-        $res->bindValue(':name', $data['name']);
+        $res = $cnn->prepare('INSERT INTO tbl_user(firstname, lastname, email, credit) VALUES ( :firstname, :lastname, :email, :credit)');
+        $res->bindParam(':firstname', $data['firstname']);
+        $res->bindParam(':lastname', $data['lastname']);
+        $res->bindParam(':email', $data['email']);
+        $res->bindParam(':credit', $data['credit']);
         $res->execute();
 
+        $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
       }
       else
@@ -173,13 +221,13 @@ $app->post('/api/v2/key', function ($request, $response) {
           if(array_key_exists('id_user', $_POST))
           {
             $res = $cnn->prepare('INSERT INTO tbl_keys(UID, id_user) VALUES (:uid,:id_user);');
-            $res->bindValue(':uid', $data['UID']);
-            $res->bindValue(':id_user', $data['id_user']);
+            $res->bindParam(':uid', $data['UID']);
+            $res->bindParam(':id_user', $data['id_user']);
           }
           else
           {
-            $res = $cnn->prepare('INSERT INTO tbl_keys(UID) VALUES (:uid);');
-            $res->bindValue(':uid', $data['UID']);
+            $res = $cnn->prepare('INSERT INTO tbl_keys(UID) ParamS (:uid);');
+            $res->bindParam(':uid', $data['UID']);
           }
           $res->execute();
 

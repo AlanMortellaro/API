@@ -136,6 +136,23 @@ $app->get('/api/v2/orders', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
+// retourne les informations de la commande via l'id de l'utilisateur
+$app->get('/api/v2/order/user/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT firstname, lastname, tbl_order.id AS id_order, tbl_article.name, tbl_article.price FROM `tbl_order` LEFT JOIN tbl_user ON tbl_order.id_user = tbl_user.id LEFT JOIN content ON tbl_order.id = content.id_order LEFT JOIN tbl_article ON content.id_article = tbl_article.id WHERE tbl_user.id = :id');
+    $res->bindParam(':id', $id);
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
 // retourne les informations d'une commande
 $app->get('/api/v2/order/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');

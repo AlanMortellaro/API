@@ -408,7 +408,7 @@ $app->post('/api/v2/buy', function ($request, $response) {
 
 
 // Attribute a key for an user
-$app->put('/api/v2/link/key/{id}', function ($request, $response, $args) {
+$app->put('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
@@ -442,6 +442,26 @@ $app->put('/api/v2/link/key/{id}', function ($request, $response, $args) {
       }
 
     });
+
+    // Desattribute a key for an user
+$app->put('/api/v2/unlink/key/[{id}]', function ($request, $response, $args) {
+
+          $id = $request->getAttribute('id');
+
+          $data = $request->getParsedBody();
+
+          $cnn = getConnexion('apidallas');
+          $res = $cnn->prepare('UPDATE tbl_key SET id_user = NULL WHERE tbl_key.id = :id');
+          $res->bindParam(':id', $id, PDO::PARAM_INT);
+          $res->execute();
+
+
+          $data['error'] = 'F';
+          $data['id_key'] = $id;
+          $data['msg'] = 'Vous avez enlever l\'atrribution de la clé numero ' . $id;
+          $response->getBody()->write(json_encode($data));
+          return $response->withHeader('Content-Type', 'application/json');
+        });
 
 // Update user
 $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {

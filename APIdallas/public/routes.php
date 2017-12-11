@@ -444,6 +444,7 @@ $app->put('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
     });
 
     // Desattribute a key for an user
+// Desattribute a key for an user
 $app->put('/api/v2/unlink/key/[{id}]', function ($request, $response, $args) {
 
           $id = $request->getAttribute('id');

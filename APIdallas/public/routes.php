@@ -319,6 +319,86 @@ $app->post('/api/v2/key', function ($request, $response) {
     }
 });
 
+// Create article in database
+$app->post('/api/v2/article', function ($request, $response) {
+
+      $data = $request->getParsedBody();
+
+      if(array_key_exists('name', $_POST) && array_key_exists('price', $_POST))
+      {
+        if($_POST['name'] !== '' && $_POST['price'] !== '')
+        {
+            $data['error'] = 'F';
+            $cnn = getConnexion();
+            $res = $cnn->prepare('INSERT INTO tbl_article(name, price) VALUES ( :name, :price)');
+            $res->bindParam(':name', $data['name']);
+            $res->bindParam(':price', $data['price']);
+            $res->execute();
+
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+        else
+        {
+            $data['error'] = 'T';
+            $data['msgError'] = 'Veuillez renseigner le nom de la clef et son prix';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+    }
+    else
+    {
+      $data['error'] = 'T';
+      $data['msgError'] = 'Veuillez déclarer $_POST[\'name\'] et $_POST[\'price\']';
+      $response->getBody()->write(json_encode($data));
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+});
+
+// Create buy article
+$app->post('/api/v2/buy', function ($request, $response) {
+
+  $id = $request->getAttribute('id');
+  $data = $request->getParsedBody();
+
+  if(array_key_exists('id_user', $_POST) && array_key_exists('quantitiy', $_POST) && array_key_exists('id_order', $_POST) && array_key_exists('id_article', $_POST))
+  {
+    if($_POST['id_user'] !== '' && $_POST['quantitiy'] !== '' && $_POST['id_order'] !== '' && $_POST['id_article'] !== '')
+    {
+      $data['error'] = 'F';
+
+      $cnn = getConnexion();
+      $res = $cnn->prepare('INSERT INTO tbl_order(id_user) VALUES (:id_user)');
+      $res->bindParam(':id_user', $data['id_user']);
+      $res->execute();
+
+      $cnn = getConnexion();
+      $res = $cnn->prepare('INSERT INTO content(quantitiy, id_order, id_article) VALUES (:quantitiy, :id_order, :id_article)');
+      $res->bindParam(':quantitiy', $data['quantitiy']);
+      $res->bindParam(':id_order', $data['id_order']);
+      $res->bindParam(':id_article', $data['id_article']);
+      $res->execute();
+
+      $response->getBody()->write(json_encode($data));
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+    else
+    {
+      $data['error'] = 'T';
+      $data['msgError'] = 'Veuillez renseigner les champs suivant : $_POST[\'id_user\'], $_POST[\'quantitiy\'], $_POST[\'id_order\'], $_POST[\'id_article\']';
+      $response->getBody()->write(json_encode($data));
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+  }
+  else
+  {
+    $data['error'] = 'T';
+    $data['msgError'] = 'Veuillez déclarer et renseigner les champs suivant : $_POST[\'id_user\'], $_POST[\'quantitiy\'], $_POST[\'id_order\'], $_POST[\'id_article\']';
+    $response->getBody()->write(json_encode($data));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+});
 //====================================================================================================
 
 
@@ -328,7 +408,7 @@ $app->post('/api/v2/key', function ($request, $response) {
 
 
 // Attribute a key for an user
-$app->put('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
+$app->put('/api/v2/link/key/{id}', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
@@ -338,24 +418,28 @@ $app->put('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
         if($data['id_user'] !== '')
         {
             $cnn = getConnexion();
-            $res = $cnn->prepare('UPDATE tbl_keys SET id_user = :id_user WHERE tbl_keys.id = :id');
+            $res = $cnn->prepare('UPDATE `tbl_key` SET `id_user`= :id_user WHERE id = :id');
             $res->bindParam(':id_user', $data['id_user'], PDO::PARAM_INT);
             $res->bindParam(':id', $id, PDO::PARAM_INT);
             $res->execute();
-            $response->getBody()->write("Vous avez attribué la clef " . $id . "à l'utilisateur numéro " . $data['id_user']);
+
+            $data['error'] = 'F';
+            $data['msg'] = 'Vous avez attribué la clef numéro ' . $id . ' à l\'utilisateur numéro ' . $data['id_user'];
+            $response->getBody()->write(json_encode($data));
             return $response->withHeader('Content-Type', 'application/json');
         }
         else
         {
-            $response->getBody()->write('Veuillez renseigner le paramètre "id_user" (NULL)');
+            $data['error'] = 'T';
+            $data['msgError'] = 'Veuillez renseigner le paramètre "id_user" (NULL vous voulez enlever l\'attribut de cette clé)';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
         }
       }
       else
       {
           $response->getBody()->write('Veuillez déclarer le paramètre "id_user"');
       }
-
-
 
     });
 

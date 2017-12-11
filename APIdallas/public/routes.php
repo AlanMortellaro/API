@@ -469,27 +469,33 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
       $data = $request->getParsedBody();
       $id = $request->getAttribute('id');
 
-      var_dump($data);
-
-      if(array_key_exists('name', $data) && array_key_exists('firstname', $data))
+      if(array_key_exists('lastname', $data) OR array_key_exists('firstname', $data) OR array_key_exists('email', $data) OR array_key_exists('credit', $data))
       {
-        if($data['name'] !== '' && $data['firstname'] !== '')
+        if($data['lastname'] !== '' OR $data['firstname'] !== '' OR $data['email'] !== '' OR $data['credit'] !== '')
         {
             $cnn = getConnexion();
-            $res = $cnn->prepare('UPDATE tbl_users SET name = :name, firstname = :firstname WHERE id LIKE :id');
-            $res->bindParam(':name', $data['name']);
+            $res = $cnn->prepare('UPDATE tbl_user SET firstname=:firstname,lastname=:lastname,email=:email, credit=:credit WHERE id = :id');
             $res->bindParam(':firstname', $data['firstname']);
+            $res->bindParam(':lastname', $data['lastname']);
+            $res->bindParam(':email', $data['email']);
+            $res->bindParam(':credit', $data['credit']);
             $res->bindParam(':id', $id);
             $res->execute();
         }
         else
         {
-          $response->getBody()->write('Veuillez renseigner "$data[\'name\']" et "$data[\'firstname\']" ');
+          $data['error'] = 'T';
+          $data['msgError'] = 'Veuillez renseigner "$_POST[\'lastname\']" ou "$_POST[\'firstname\']" ou "$_POST[\'email\']" ou "$_POST[\'credit\']"';
+          $response->getBody()->write(json_encode($data));
+          return $response->withHeader('Content-Type', 'application/json');
         }
       }
       else
       {
-        $response->getBody()->write('Veuillez passer en paramètre "lastname" et "firstname" ');
+        $data['error'] = 'T';
+        $data['msgError'] = 'Veuillez déclarer et renseigner "$_POST[\'lastname\']" ou "$_POST[\'firstname\']" ou "$_POST[\'email\']" ou "$_POST[\'credit\']"';
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
       }
     });
 

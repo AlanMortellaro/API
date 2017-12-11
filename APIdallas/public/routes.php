@@ -489,7 +489,7 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
       }
       else
       {
-        $response->getBody()->write('Veuillez passer en paramètre "name" et "firstname" ');
+        $response->getBody()->write('Veuillez passer en paramètre "lastname" et "firstname" ');
       }
     });
 

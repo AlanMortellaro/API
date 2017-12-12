@@ -8,7 +8,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/api/v2/users', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
-    $res = $cnn->prepare('SELECT * FROM tbl_user');
+    $res = $cnn->prepare('SELECT * FROM tbl_user WHERE tbl_user.active = 1');
     $res->execute();
 
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -470,10 +470,8 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
       $data = $request->getParsedBody();
       $id = $request->getAttribute('id');
 
-      if(array_key_exists('lastname', $data) OR array_key_exists('firstname', $data) OR array_key_exists('email', $data) OR array_key_exists('credit', $data))
+      if(array_key_exists('lastname', $data) AND array_key_exists('firstname', $data) AND array_key_exists('email', $data) AND array_key_exists('credit', $data))
       {
-        if($data['lastname'] !== '' OR $data['firstname'] !== '' OR $data['email'] !== '' OR $data['credit'] !== '')
-        {
             $cnn = getConnexion();
             $res = $cnn->prepare('UPDATE tbl_user SET firstname=:firstname,lastname=:lastname,email=:email, credit=:credit WHERE id = :id');
             $res->bindParam(':firstname', $data['firstname']);
@@ -482,24 +480,53 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
             $res->bindParam(':credit', $data['credit']);
             $res->bindParam(':id', $id);
             $res->execute();
-        }
-        else
-        {
-          $data['error'] = 'T';
-          $data['msgError'] = 'Veuillez renseigner "$_POST[\'lastname\']" ou "$_POST[\'firstname\']" ou "$_POST[\'email\']" ou "$_POST[\'credit\']"';
-          $response->getBody()->write(json_encode($data));
-          return $response->withHeader('Content-Type', 'application/json');
-        }
+
+            $data['error'] = 'F';
+            $data['msg'] = 'Votre requête a bien abouti';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
       }
       else
       {
         $data['error'] = 'T';
-        $data['msgError'] = 'Veuillez déclarer et renseigner "$_POST[\'lastname\']" ou "$_POST[\'firstname\']" ou "$_POST[\'email\']" ou "$_POST[\'credit\']"';
+        $data['msgError'] = 'Veuillez déclarer et renseigner "$_POST[\'lastname\']" ET "$_POST[\'firstname\']" ET "$_POST[\'email\']" ET "$_POST[\'credit\']"';
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
       }
     });
 
+// Delete an user in database
+$app->put('/api/v2/statut/user/[{id}]', function ($request, $response, $args) {
+
+        $id = $request->getAttribute('id');
+        $data = $request->getParsedBody();
+
+        $cnn = getConnexion();
+        $res = $cnn->prepare('SELECT * FROM tbl_key WHERE id_user = :id');
+        $res->bindParam(':id', $id);
+        $res->execute();
+        $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+        if(empty($res))
+        {
+            $res = $cnn->prepare('UPDATE tbl_user SET active= :active WHERE id = :id');
+            $res->bindParam(':id', $id);
+            $res->bindParam(':active', $data['active']);
+            $res->execute();
+
+            $data['error'] = 'F';
+            $data['msgError'] = 'L\'utilisateur numéro ' . $id . ' a bien été désactiver';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+        else
+        {
+            $data['error'] = 'T';
+            $data['msgError'] = 'Une clef est assigné a cet utilisateur veuillez d\'abord désassigner la clef de cet utilisateur';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+      });
 //====================================================================================================
 
 
@@ -508,30 +535,6 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
 
 //========================================DELETE=======================================================
 
-// Delete an user in database
-$app->delete('/api/v2/user/[{id}]', function ($request, $response, $args) {
-
-        $id = $request->getAttribute('id');
-
-        $cnn = getConnexion();
-        $res = $cnn->prepare('SELECT * FROM tbl_keys WHERE id_user = :id');
-        $res->bindParam(':id', $id);
-        $res->execute();
-        $res = $res->fetchAll(PDO::FETCH_ASSOC);
-
-        if(empty($res))
-        {
-            $res = $cnn->prepare('DELETE FROM tbl_users WHERE tbl_users.id LIKE :id');
-            $res->bindParam(':id', $id);
-            $res->execute();
-        }
-        else
-        {
-            $response->getBody()->write('Une clef est assigné a cet utilisateur veuillez d\'abord désassigner la clef de cet utilisateur <br><br>');
-            $jsonPerson = json_encode($res);
-            $response->getBody()->write($jsonPerson);
-        }
-    });
 
 // Delete a key in database
 $app->delete('/api/v2/key/[{id}]', function ($request, $response, $args) {

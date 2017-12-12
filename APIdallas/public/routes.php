@@ -8,7 +8,37 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/api/v2/users', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT * FROM tbl_user');
+    $res->execute();
+
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+//retourne tous les utilisateurs activé
+$app->get('/api/v2/users/active', function (Request $request, Response $response) {
+
+    $cnn = getConnexion();
     $res = $cnn->prepare('SELECT * FROM tbl_user WHERE tbl_user.active = 1');
+    $res->execute();
+
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+//retourne tous les utilisateurs desactivé
+$app->get('/api/v2/users/desactive', function (Request $request, Response $response) {
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT * FROM tbl_user WHERE tbl_user.active = 0');
     $res->execute();
 
     $res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -282,6 +312,22 @@ $app->post("/api/v2/user", function ($request, $response) {
     }
 });
 
+// Reactive an user in database
+$app->post('/api/v2/user/[{id}]', function ($request, $response, $args) {
+
+        $id = $request->getAttribute('id');
+
+        $cnn = getConnexion();
+        $res = $cnn->prepare('UPDATE tbl_user SET active = 1 WHERE id = :id');
+        $res->bindParam(':id', $id);
+        $res->execute();
+
+        $data['error'] = 'F';
+        $data['msg'] = 'L\'utilisateur numéro ' . $id . ' a bien été ré-activer';
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
+
+      });
 
 // Create key in database
 $app->post('/api/v2/key', function ($request, $response) {
@@ -495,11 +541,18 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
       }
     });
 
-// Delete an user in database
-$app->put('/api/v2/statut/user/[{id}]', function ($request, $response, $args) {
+//====================================================================================================
+
+
+
+
+
+//========================================DELETE=======================================================
+
+// Delete(desactive) an user in database
+$app->delete('/api/v2/user/[{id}]', function ($request, $response, $args) {
 
         $id = $request->getAttribute('id');
-        $data = $request->getParsedBody();
 
         $cnn = getConnexion();
         $res = $cnn->prepare('SELECT * FROM tbl_key WHERE id_user = :id');
@@ -509,13 +562,12 @@ $app->put('/api/v2/statut/user/[{id}]', function ($request, $response, $args) {
 
         if(empty($res))
         {
-            $res = $cnn->prepare('UPDATE tbl_user SET active= :active WHERE id = :id');
+            $res = $cnn->prepare('UPDATE tbl_user SET active = 0 WHERE id = :id');
             $res->bindParam(':id', $id);
-            $res->bindParam(':active', $data['active']);
             $res->execute();
 
             $data['error'] = 'F';
-            $data['msgError'] = 'L\'utilisateur numéro ' . $id . ' a bien été désactiver';
+            $data['msg'] = 'L\'utilisateur numéro ' . $id . ' a bien été désactiver';
             $response->getBody()->write(json_encode($data));
             return $response->withHeader('Content-Type', 'application/json');
         }
@@ -527,14 +579,6 @@ $app->put('/api/v2/statut/user/[{id}]', function ($request, $response, $args) {
             return $response->withHeader('Content-Type', 'application/json');
         }
       });
-//====================================================================================================
-
-
-
-
-
-//========================================DELETE=======================================================
-
 
 // Delete a key in database
 $app->delete('/api/v2/key/[{id}]', function ($request, $response, $args) {

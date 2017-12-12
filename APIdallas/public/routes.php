@@ -212,7 +212,7 @@ $app->get('/api/v2/order/{id}', function (Request $request, Response $response) 
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// retourne les informations d'une commande
+// retourne les informations des articles
 $app->get('/api/v2/articles', function (Request $request, Response $response) {
 
     $cnn = getConnexion();
@@ -225,6 +225,35 @@ $app->get('/api/v2/articles', function (Request $request, Response $response) {
 
     return $response->withHeader('Content-Type', 'application/json');
 });
+
+// retourne les informations des articles activés
+$app->get('/api/v2/articles/active', function (Request $request, Response $response) {
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT * FROM tbl_article WHERE tbl_article.active = 1');
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+// retourne les informations des articles desactivés
+$app->get('/api/v2/articles/desactive', function (Request $request, Response $response) {
+
+    $cnn = getConnexion();
+    $res = $cnn->prepare('SELECT * FROM tbl_article WHERE tbl_article.active = 0');
+    $res->execute();
+    $res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+    $jsonPerson = json_encode($res);
+    $response->getBody()->write($jsonPerson);
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
 
 // retourne les informations d'une commande
 $app->get('/api/v2/article/{id}', function (Request $request, Response $response) {
@@ -400,6 +429,23 @@ $app->post('/api/v2/article', function ($request, $response) {
       return $response->withHeader('Content-Type', 'application/json');
     }
 });
+
+// Active an article in database
+$app->post('/api/v2/article/[{id}]', function ($request, $response, $args) {
+
+        $id = $request->getAttribute('id');
+
+        $cnn = getConnexion();
+        $res = $cnn->prepare('UPDATE tbl_article SET active = 1 WHERE id = :id');
+        $res->bindParam(':id', $id);
+        $res->execute();
+
+        $data['error'] = 'F';
+        $data['msg'] = 'L\'article numéro ' . $id . ' a bien été ré-activer';
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
+
+      });
 
 // Create buy article
 $app->post('/api/v2/buy', function ($request, $response) {
@@ -586,10 +632,31 @@ $app->delete('/api/v2/key/[{id}]', function ($request, $response, $args) {
         $id = $request->getAttribute('id');
 
         $cnn = getConnexion();
-        $res = $cnn->prepare('DELETE FROM tbl_keys WHERE tbl_keys.id LIKE :id');
+        $res = $cnn->prepare('DELETE FROM tbl_key WHERE tbl_key.id LIKE :id');
         $res->bindParam(':id', $id);
         $res->execute();
+
+        $data['error'] = 'F';
+        $data['msg'] = 'La clé numéro ' . $id . ' a bien été supprimé';
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
     });
 
+// Delete(desactive) an article in database
+$app->delete('/api/v2/article/[{id}]', function ($request, $response, $args) {
+
+        $id = $request->getAttribute('id');
+
+        $cnn = getConnexion();
+        $res = $cnn->prepare('UPDATE tbl_article SET active = 0 WHERE id = :id');
+        $res->bindParam(':id', $id);
+        $res->execute();
+
+        $data['error'] = 'F';
+        $data['msg'] = 'L\'article numéro ' . $id . ' a bien été désactiver';
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
+
+      });
 //====================================================================================================
 ?>

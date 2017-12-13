@@ -300,6 +300,7 @@ $app->get('/api/v2/token', function (Request $request, Response $response) {
 
 
 
+
 //=========================================POST======================================================
 
 // Create user in database
@@ -491,16 +492,9 @@ $app->post('/api/v2/buy', function ($request, $response) {
   }
 
 });
-//====================================================================================================
-
-
-
-
-//=========================================PUT========================================================
-
 
 // Attribute a key for an user
-$app->put('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
+$app->post('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
 
       $id = $request->getAttribute('id');
       $data = $request->getParsedBody();
@@ -535,26 +529,13 @@ $app->put('/api/v2/link/key/[{id}]', function ($request, $response, $args) {
 
     });
 
-    // Desattribute a key for an user
-// Desattribute a key for an user
-$app->put('/api/v2/unlink/key/[{id}]', function ($request, $response, $args) {
-
-          $id = $request->getAttribute('id');
-
-          $data = $request->getParsedBody();
-
-          $cnn = getConnexion('apidallas');
-          $res = $cnn->prepare('UPDATE tbl_key SET id_user = NULL WHERE tbl_key.id = :id');
-          $res->bindParam(':id', $id, PDO::PARAM_INT);
-          $res->execute();
+//====================================================================================================
 
 
-          $data['error'] = 'F';
-          $data['id_key'] = $id;
-          $data['msg'] = 'Vous avez enlever l\'atrribution de la clé numero ' . $id;
-          $response->getBody()->write(json_encode($data));
-          return $response->withHeader('Content-Type', 'application/json');
-        });
+
+
+
+//=========================================PUT========================================================
 
 // Update user
 $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
@@ -582,6 +563,35 @@ $app->put('/api/v2/user/[{id}]', function ($request, $response, $args) {
       {
         $data['error'] = 'T';
         $data['msgError'] = 'Veuillez déclarer et renseigner "$_POST[\'lastname\']" ET "$_POST[\'firstname\']" ET "$_POST[\'email\']" ET "$_POST[\'credit\']"';
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
+      }
+    });
+
+// Update article
+$app->put('/api/v2/article/[{id}]', function ($request, $response, $args) {
+
+      $data = $request->getParsedBody();
+      $id = $request->getAttribute('id');
+
+      if(array_key_exists('name', $data) AND array_key_exists('price', $data))
+      {
+            $cnn = getConnexion();
+            $res = $cnn->prepare('UPDATE `tbl_article` SET `name`= :name,`price`= :price WHERE id = :id');
+            $res->bindParam(':name', $data['name']);
+            $res->bindParam(':price', $data['price']);
+            $res->bindParam(':id', $id);
+            $res->execute();
+
+            $data['error'] = 'F';
+            $data['msg'] = 'Votre requête a bien abouti';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+      }
+      else
+      {
+        $data['error'] = 'T';
+        $data['msgError'] = 'Veuillez déclarer et renseigner "$_POST[\'name\']" ET "$_POST[\'price\']"';
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
       }
@@ -658,5 +668,25 @@ $app->delete('/api/v2/article/[{id}]', function ($request, $response, $args) {
         return $response->withHeader('Content-Type', 'application/json');
 
       });
+
+// Desattribute a key for an user
+$app->delete('/api/v2/unlink/key/[{id}]', function ($request, $response, $args) {
+
+          $id = $request->getAttribute('id');
+
+          $data = $request->getParsedBody();
+
+          $cnn = getConnexion('apidallas');
+          $res = $cnn->prepare('UPDATE tbl_key SET id_user = NULL WHERE tbl_key.id = :id');
+          $res->bindParam(':id', $id, PDO::PARAM_INT);
+          $res->execute();
+
+
+          $data['error'] = 'F';
+          $data['id_key'] = $id;
+          $data['msg'] = 'Vous avez enlever l\'atrribution de la clé numero ' . $id;
+          $response->getBody()->write(json_encode($data));
+          return $response->withHeader('Content-Type', 'application/json');
+        });
 //====================================================================================================
 ?>

@@ -286,6 +286,8 @@ $app->get('/api/v2/article/{id}', function (Request $request, Response $response
 
 //test token
 $app->get('/api/v2/token', function (Request $request, Response $response) {
+
+
     $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(16)); //generate a random token
 
     $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment

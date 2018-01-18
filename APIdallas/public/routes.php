@@ -284,19 +284,6 @@ $app->get('/api/v2/article/{id}', function (Request $request, Response $response
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-//test token
-$app->get('/api/v2/token', function (Request $request, Response $response) {
-
-
-    $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(16)); //generate a random token
-
-    $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment
-
-    $response->getBody()->write(json_encode($arrRtn));
-
-    return $response->withHeader('Content-Type', 'application/json');
-});
-
 //====================================================================================================
 
 
@@ -304,6 +291,52 @@ $app->get('/api/v2/token', function (Request $request, Response $response) {
 
 
 //=========================================POST======================================================
+// Create token
+$app->post('/api/v2/token', function ($request, $response, $args) {
+
+        $data = $request->getParsedBody();
+
+        if(array_key_exists('lastname', $_POST) && array_key_exists('password', $_POST))
+        {
+          $cnn = getConnexion();
+          $res = $cnn->prepare('SELECT * FROM tbl_user WHERE lastname LIKE :lastname');
+          $res->bindParam(':lastname', $data['lastname']);
+          $res->execute();
+          $res = $res->fetchAll(PDO::FETCH_ASSOC);
+          $id = $res[0]['id'];
+
+          if(md5($data['password']) == md5($res[0]['password']))
+          {
+            $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(16)); //generate a random token
+
+            $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment
+
+            $response->getBody()->write(json_encode($arrRtn));
+
+            $cnn = getConnexion();
+            $res = $cnn->prepare('UPDATE tbl_user SET token = :token WHERE id = :id');
+            $res->bindParam(':id', $id);
+            $res->bindParam(':token', $arrRtn['token']);
+            $res->execute();
+
+            $data['error'] = 'F';
+            $data['msg'] = 'Token pour l\'utilisateur ' . $data['lastname'] . ' créé';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+          }
+          else
+          {
+            $data['error'] = 'T';
+            $data['msgError'] = 'lastname ou password incorrect';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+          }
+
+          $data['error'] = 'F';
+          $response->getBody()->write(json_encode($data));
+          return $response->withHeader('Content-Type', 'application/json');
+        }
+      });
 
 // Create user in database
 $app->post("/api/v2/user", function ($request, $response) {

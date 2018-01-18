@@ -305,20 +305,37 @@ $app->post('/api/v2/token', function ($request, $response, $args) {
           $res = $res->fetchAll(PDO::FETCH_ASSOC);
           $id = $res[0]['id'];
 
-          $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(16)); //generate a random token
+          if($res[0]['id'] !== null)
+          {
+            $arrRtn['token'] = bin2hex(openssl_random_pseudo_bytes(16)); //generate a random token
 
-          $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment
+            $tokenExpiration = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in one hour from the current moment
 
-          $cnn = getConnexion();
-          $res = $cnn->prepare('UPDATE tbl_user SET token = :token WHERE id = :id');
-          $res->bindParam(':id', $id);
-          $res->bindParam(':token', $arrRtn['token']);
-          $res->execute();
+            $cnn = getConnexion();
+            $res = $cnn->prepare('UPDATE tbl_user SET token = :token WHERE id = :id');
+            $res->bindParam(':id', $id);
+            $res->bindParam(':token', $arrRtn['token']);
+            $res->execute();
 
-          $data['error'] = 'F';
-          $data['msg'] = 'Token pour l\'utilisateur ' . $data['UID'] . ' créé';
-          $json = array_merge($data, $arrRtn);
-          $response->getBody()->write(json_encode($json));
+            $data['error'] = 'F';
+            $data['msg'] = 'Token pour l\'utilisateur ' . $data['UID'] . ' créé';
+            $json = array_merge($data, $arrRtn);
+            $response->getBody()->write(json_encode($json));
+            return $response->withHeader('Content-Type', 'application/json');
+          }
+          else
+          {
+            $data['error'] = 'T';
+            $data['msg'] = 'Cette clé appartient a aucun utilisateur';
+            $response->getBody()->write(json_encode($data));
+            return $response->withHeader('Content-Type', 'application/json');
+          }
+        }
+        else
+        {
+          $data['error'] = 'T';
+          $data['msg'] = 'Veuillez déclarer l\'UID';
+          $response->getBody()->write(json_encode($data));
           return $response->withHeader('Content-Type', 'application/json');
         }
       });
